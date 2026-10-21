@@ -1,0 +1,23 @@
+### 1. Add an Exam Room
+POST http://127.0.0.1:8080/api/exam/rooms
+Content-Type: application/json
+
+{
+    "roomName": "Hall 1",
+    "capacity": 4,
+    "rows": 2,
+    "cols": 2
+}
+
+### 2. Add a Student
+POST http://127.0.0.1:8080/api/exam/students
+Content-Type: application/json
+
+{
+    "name": "Tarun",
+    "rollNumber": "BCA001",
+    "department": "BCA"
+}
+
+### 3. Trigger Seating Allocation
+POST http://127.0.0.1:8080/api/exam/allocate

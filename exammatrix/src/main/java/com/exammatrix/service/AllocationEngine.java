@@ -7,8 +7,9 @@ import com.exammatrix.repository.ExamRoomRepository;
 import com.exammatrix.repository.SeatAssignmentRepository;
 import com.exammatrix.repository.StudentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AllocationEngine {
@@ -25,20 +26,45 @@ public class AllocationEngine {
         this.seatAssignmentRepository = seatAssignmentRepository;
     }
 
-    public String generateAllocations() {
+    @Transactional
+    public String allocateSeats() {
         seatAssignmentRepository.deleteAll();
 
-        List<ExamRoom> rooms = examRoomRepository.findAll();
         List<Student> students = studentRepository.findAll();
+        List<ExamRoom> rooms = examRoomRepository.findAll();
 
-        if (rooms.isEmpty()) {
-            return "Error: No exam rooms found in the database!";
+        if (students.isEmpty() || rooms.isEmpty()) {
+            return "Error: Please add both students and exam rooms before allocating!";
         }
-        if (students.isEmpty()) {
-            return "Error: No students found in the database!";
+
+        Map<String, List<Student>> departmentMap = new HashMap<>();
+        for (Student student : students) {
+            String dept = student.getDepartment();
+            if (!departmentMap.containsKey(dept)) {
+                departmentMap.put(dept, new ArrayList<>());
+            }
+            departmentMap.get(dept).add(student);
+        }
+
+        List<Student> interleavedStudents = new ArrayList<>();
+        List<Iterator<Student>> iterators = new ArrayList<>();
+        for (List<Student> deptStudents : departmentMap.values()) {
+            iterators.add(deptStudents.iterator());
+        }
+
+        boolean hasMore = true;
+        while (hasMore) {
+            hasMore = false;
+            for (Iterator<Student> iterator : iterators) {
+                if (iterator.hasNext()) {
+                    interleavedStudents.add(iterator.next());
+                    hasMore = true;
+                }
+            }
         }
 
         int studentIndex = 0;
+        List<SeatAssignment> finalAssignments = new ArrayList<>();
 
         for (ExamRoom room : rooms) {
             int roomRows = room.getRows();
@@ -46,23 +72,30 @@ public class AllocationEngine {
 
             for (int r = 1; r <= roomRows; r++) {
                 for (int c = 1; c <= roomCols; c++) {
-                    if (studentIndex >= students.size()) {
-                        return "Allocation completed successfully! Seated " + studentIndex + " students.";
+                    if (studentIndex >= interleavedStudents.size()) {
+                        break;
                     }
 
-                    Student student = students.get(studentIndex++);
-
+                    Student assignedStudent = interleavedStudents.get(studentIndex++);
+                    
                     SeatAssignment assignment = new SeatAssignment();
-                    assignment.setStudent(student);
                     assignment.setExamRoom(room);
+                    assignment.setStudent(assignedStudent);
                     assignment.setSeatRow(r);
                     assignment.setSeatCol(c);
 
-                    seatAssignmentRepository.save(assignment);
+                    finalAssignments.add(assignment);
                 }
+                if (studentIndex >= interleavedStudents.size()) {
+                    break;
+                }
+            }
+            if (studentIndex >= interleavedStudents.size()) {
+                break;
             }
         }
 
-        return "Allocation completed successfully! Seated " + studentIndex + " students (some rooms may have remaining space).";
+        seatAssignmentRepository.saveAll(finalAssignments);
+        return "Success: Allocated " + finalAssignments.size() + " students with anti-cheating department spacing!";
     }
 }

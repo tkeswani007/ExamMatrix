@@ -1,12 +1,15 @@
 package com.exammatrix.controller;
 
 import com.exammatrix.service.AllocationService;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/exam")
+@CrossOrigin
 public class ExamController {
     private final AllocationService allocationService;
 

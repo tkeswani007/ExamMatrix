@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/exam")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class ExamController {
     private final AllocationService allocationService;
 

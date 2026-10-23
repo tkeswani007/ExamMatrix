@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Matrix | Intelligent Seat Allocation System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 64px;
+        }
+
+        header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .brand-logo-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            object-fit: contain;
+            border: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            padding: 6px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #0f172a, #4f46e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 4px;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background-color: #ecfdf5;
+            color: #065f46;
+            font-size: 0.775rem;
+            font-weight: 700;
+            border-radius: 9999px;
+            border: 1px solid #a7f3d0;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 26px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4338ca, #3730a3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        }
+
+        .btn-dark {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #ffffff;
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .btn-dark:hover {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 10px 18px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 36px;
+            right: 36px;
+            z-index: 50;
+            transform: translateY(120px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 420px;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-content {
+            padding: 18px 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.15);
+            border: 1px solid;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .toast-success {
+            background-color: #ecfdf5;
+            border-color: #a7f3d0;
+            color: #065f46;
+        }
+
+        .toast-error {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 40px auto 0 auto;
+            padding: 0 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #4f46e5;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #cbd5e1;
+            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.25rem;
+            box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.8);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 36px;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.03);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.06);
+        }
+
+        .card-header {
+            padding: 28px 32px;
+            border-bottom: 1px solid #f1f5f9;
+            background: linear-gradient(to bottom, #ffffff, #fafafa);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .badge-count {
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            border-radius: 9999px;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        .card-body {
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: #0f172a;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        input:hover {
+            border-color: #cbd5e1;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.12);
+        }
+
+        .list-section {
+            margin-top: 12px;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .list-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .scrollable-list {
+            max-height: 260px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 6px;
+        }
+
+        .scrollable-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .scrollable-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .list-item {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+        }
+
+        .list-item:hover {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+        }
+
+        .item-title {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 0.95rem;
+        }
+
+        .item-sub {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            border: none;
+            color: #991b1b;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.775rem;
+            font-weight: 800;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .results-section {
+            grid-column: 1 / -1;
+        }
+
+        .empty-results {
+            text-align: center;
+            padding: 100px 32px;
+            background-color: #fafafa;
+            border: 2px dashed #cbd5e1;
+            border-radius: 24px;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: #4f46e5;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 24px auto;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .allocation-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .room-group-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 32px;
+            background-color: #fafafa;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+        }
+
+        .room-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .room-name-heading {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .room-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #4f46e5;
+            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.15);
+        }
+
+        .allocation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .allocation-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .allocation-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .allocation-item {
+            background-color: #ffffff;
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .allocation-item:hover {
+            transform: translateY(-4px);
+            border-color: #4f46e5;
+            box-shadow: 0 12px 30px -8px rgba(79, 70, 229, 0.15);
+        }
+
+        .student-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .student-dept {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .student-roll {
+            font-size: 0.75rem;
+            color: #4f46e5;
+            font-family: monospace;
+            margin-top: 4px;
+            font-weight: 800;
+        }
+
+        .seat-badge {
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            color: #4f46e5;
+            padding: 12px 16px;
+            border-radius: 14px;
+            text-align: right;
+            border: 1px solid #a5b4fc;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+
+        .seat-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: block;
+        }
+
+        .seat-coords {
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="brand-group">
+                <img src="LG.png" alt="Exam Matrix Logo" class="brand-logo-img">
+                <div>
+                    <h1 class="brand-title">Exam Matrix</h1>
+                    <p class="brand-subtitle">Automated Exam Hall Seat Allocation System</p>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>System Ready</span>
+                </div>
+                <button onclick="runAllocation()" class="btn btn-primary">
+                    Run Allocation
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="toast">
+        <div id="toastContent" class="toast-content">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <main>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>
+                    <p class="stat-label">Total Rooms</p>
+                    <h3 id="statRooms" class="stat-value">0</h3>
+                </div>
+                <div class="stat-icon">R</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <p class="stat-label">Total Students</p>
+                    <h3 id="statStudents" class="stat-value">0</h3>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7;">S</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <p class="stat-label">Database Status</p>
+                    <h3 class="stat-value" style="font-size: 1.35rem; color: #059669; margin-top: 12px;">Connected (Port 8080)</h3>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ecfdf5, #a7f3d0); color: #059669;">OK</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Exam Rooms Management</h2>
+                    <span id="roomCountBadge" class="badge-count">0 Rooms</span>
+                </div>
+                <div class="card-body">
+                    <form id="roomForm" onsubmit="saveRoom(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Room Name / ID</label>
+                                <input type="text" id="roomName" placeholder="e.g. Hall A - 101" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Capacity</label>
+                                <input type="number" id="capacity" placeholder="e.g. 24" min="1" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Rows</label>
+                                <input type="number" id="rows" placeholder="e.g. 4" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Columns</label>
+                                <input type="number" id="cols" placeholder="e.g. 6" min="1" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Save Exam Room</button>
+                    </form>
+
+                    <div class="list-section">
+                        <p class="list-title">Configured Rooms</p>
+                        <div id="roomList" class="scrollable-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Students Management</h2>
+                    <span id="studentCountBadge" class="badge-count">0 Students</span>
+                </div>
+                <div class="card-body">
+                    <form id="studentForm" onsubmit="saveStudent(event)">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="studentName" placeholder="e.g. Alexander Vance" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Roll Number</label>
+                                <input type="text" id="rollNumber" placeholder="e.g. BCA/2026/001" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <input type="text" id="department" placeholder="e.g. Computer Science" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Save Student Record</button>
+                    </form>
+
+                    <div class="list-section">
+                        <p class="list-title">Registered Students</p>
+                        <div id="studentList" class="scrollable-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card results-section">
+            <div class="card-header">
+                <h2 class="card-title">Seating Arrangement Matrix</h2>
+                <button onclick="clearAllocations()" class="btn btn-secondary">Reset Matrix</button>
+            </div>
+            <div id="resultsContainer" class="card-body">
+                <div class="empty-results">
+                    <div class="empty-icon">M</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">No Seating Matrix Computed Yet</h3>
+                    <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Add rooms and students above, then click "Run Allocation" to generate optimal seat assignments from the database.</p>
+                    <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8080';
+        let allocations = [];
+
+        window.onload = function() {
+            loadRooms();
+            loadStudents();
+        };
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastContent = document.getElementById('toastContent');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+            toastContent.className = `toast-content ${type === 'success' ? 'toast-success' : 'toast-error'}`;
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        function loadRooms() {
+            fetch(`${BACKEND_URL}/api/rooms`)
+                .then(res => res.json())
+                .then(data => {
+                    renderRooms(data);
+                })
+                .catch(err => {
+                    renderRooms([]);
+                });
+        }
+
+        function loadStudents() {
+            fetch(`${BACKEND_URL}/api/students`)
+                .then(res => res.json())
+                .then(data => {
+                    renderStudents(data);
+                })
+                .catch(err => {
+                    renderStudents([]);
+                });
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById('roomList');
+            document.getElementById('roomCountBadge').textContent = `${rooms.length} Rooms`;
+            document.getElementById('statRooms').textContent = rooms.length;
+
+            if (rooms.length === 0) {
+                container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No rooms found in database.</p>`;
+                return;
+            }
+
+            let html = '';
+            rooms.forEach(r => {
+                html += `
+                    <div class="list-item">
+                        <div>
+                            <span class="item-title">${r.roomName}</span>
+                            <p class="item-sub">Rows: ${r.roomRows} | Cols: ${r.cols} (Cap: ${r.capacity})</p>
+                        </div>
+                        <button onclick="deleteRoom(${r.id})" class="btn-delete" title="Delete Room">Delete</button>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderStudents(students) {
+            const container = document.getElementById('studentList');
+            document.getElementById('studentCountBadge').textContent = `${students.length} Students`;
+            document.getElementById('statStudents').textContent = students.length;
+
+            if (students.length === 0) {
+                container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No students found in database.</p>`;
+                return;
+            }
+
+            let html = '';
+            students.forEach(s => {
+                html += `
+                    <div class="list-item">
+                        <div>
+                            <span class="item-title">${s.name}</span>
+                            <p class="item-sub">${s.department} | Roll: ${s.rollNumber}</p>
+                        </div>
+                        <button onclick="deleteStudent(${s.id})" class="btn-delete" title="Delete Student">Delete</button>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function saveRoom(e) {
+            e.preventDefault();
+            const newRoom = {
+                roomName: document.getElementById('roomName').value.trim(),
+                capacity: parseInt(document.getElementById('capacity').value),
+                roomRows: parseInt(document.getElementById('rows').value),
+                cols: parseInt(document.getElementById('cols').value)
+            };
+
+            fetch(`${BACKEND_URL}/api/rooms`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newRoom)
+            })
+            .then(res => {
+                if (res.ok) {
+                    showToast(`Room "${newRoom.roomName}" saved to database!`, 'success');
+                    document.getElementById('roomForm').reset();
+                    loadRooms();
+                } else {
+                    showToast('Failed to save room. Check for duplicate names.', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Error connecting to backend server on port 8080.', 'error');
+            });
+        }
+
+        function saveStudent(e) {
+            e.preventDefault();
+            const newStudent = {
+                name: document.getElementById('studentName').value.trim(),
+                rollNumber: document.getElementById('rollNumber').value.trim(),
+                department: document.getElementById('department').value.trim()
+            };
+
+            fetch(`${BACKEND_URL}/api/students`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newStudent)
+            })
+            .then(res => {
+                if (res.ok) {
+                    showToast(`Student "${newStudent.name}" saved to database!`, 'success');
+                    document.getElementById('studentForm').reset();
+                    loadStudents();
+                } else {
+                    showToast('Failed to save student. Check roll numbers.', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Error connecting to backend server on port 8080.', 'error');
+            });
+        }
+
+        function deleteRoom(id) {
+            fetch(`${BACKEND_URL}/api/rooms/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.ok) {
+                    loadRooms();
+                    showToast("Room removed from database.", "error");
+                } else {
+                    showToast("Failed to delete room.", "error");
+                }
+            })
+            .catch(err => showToast("Error connecting to server.", "error"));
+        }
+
+        function deleteStudent(id) {
+            fetch(`${BACKEND_URL}/api/students/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.ok) {
+                    loadStudents();
+                    showToast("Student removed from database.", "error");
+                } else {
+                    showToast("Failed to delete student.", "error");
+                }
+            })
+            .catch(err => showToast("Error connecting to server.", "error"));
+        }
+
+        function clearAllocations() {
+            allocations = [];
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="empty-results">
+                    <div class="empty-icon">M</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">Seating Matrix Cleared</h3>
+                    <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Click the button below to re-compute seat assignments.</p>
+                    <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
+                </div>`;
+            showToast("Seating matrix reset.", "error");
+        }
+
+        function runAllocation() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">Computing optimal seat allocations from database...</p>`;
+
+            fetch(`${BACKEND_URL}/api/exam/allocate`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">No allocations returned. Ensure rooms and students are added.</p>`;
+                        showToast("No allocations found.", "error");
+                        return;
+                    }
+                    renderAllocations(data);
+                    showToast("Seat allocation successfully computed from database!", "success");
+                })
+                .catch(err => {
+                    container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">Error connecting to backend server on port 8080.</p>`;
+                    showToast("Failed to communicate with backend.", "error");
+                });
+        }
+
+        function renderAllocations(data) {
+            const container = document.getElementById('resultsContainer');
+            let grouped = {};
+            
+            data.forEach(item => {
+                let roomName = item.examRoom ? item.examRoom.roomName : "Unknown Room";
+                if (!grouped[roomName]) {
+                    grouped[roomName] = [];
+                }
+                grouped[roomName].push(item);
+            });
+
+            let html = '<div class="allocation-wrapper">';
+            for (let roomName in grouped) {
+                let seats = grouped[roomName];
+                html += `
+                    <div class="room-group-card">
+                        <div class="room-header">
+                            <h3 class="room-name-heading">
+                                <span class="room-dot"></span>
+                                ${roomName}
+                            </h3>
+                            <span class="badge-count">${seats.length} Students Allocated</span>
+                        </div>
+                        <div class="allocation-grid">`;
+
+                seats.forEach(item => {
+                    html += `
+                        <div class="allocation-item">
+                            <div>
+                                <h4 class="student-name">${item.student.name}</h4>
+                                <p class="student-dept">${item.student.department}</p>
+                                <p class="student-roll">Roll: ${item.student.rollNumber}</p>
+                            </div>
+                            <div class="seat-badge">
+                                <span class="seat-label">Seat</span>
+                                <span class="seat-coords">R${item.seatRow} : C${item.seatCol}</span>
+                            </div>
+                        </div>`;
+                });
+
+                html += `</div></div>`;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

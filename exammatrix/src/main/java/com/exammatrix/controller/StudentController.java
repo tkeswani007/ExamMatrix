@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/students")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class StudentController {
     private final StudentRepository studentRepository;
 

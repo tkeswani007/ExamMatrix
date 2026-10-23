@@ -2,54 +2,38 @@ package com.exammatrix.controller;
 
 import com.exammatrix.model.Student;
 import com.exammatrix.repository.StudentRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.exammatrix.repository.SeatAssignmentRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/students")
 @CrossOrigin(origins = "*")
 public class StudentController {
     private final StudentRepository studentRepository;
+    private final SeatAssignmentRepository seatAssignmentRepository;
 
-    public StudentController(StudentRepository studentRepository) {
+    public StudentController(StudentRepository studentRepository, SeatAssignmentRepository seatAssignmentRepository) {
         this.studentRepository = studentRepository;
+        this.seatAssignmentRepository = seatAssignmentRepository;
     }
 
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        Student savedStudent = (Student) studentRepository.save(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedStudent);
+    public Student createStudent(@RequestBody Student student) {
+        return studentRepository.save(student);
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> getAllStudents() {
-        List<Student> students = (List<Student>) studentRepository.findAll();
-        return ResponseEntity.ok(students);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Student updatedStudent) {
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-        
-        if (!optionalStudent.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found with id: " + id);
-        }
-        
-        Student student = (Student) optionalStudent.get();
-        student.setName(updatedStudent.getName());
-        student.setRollNumber(updatedStudent.getRollNumber());
-        student.setDepartment(updatedStudent.getDepartment());
-        Student saved = (Student) studentRepository.save(student);
-        
-        return ResponseEntity.ok(saved);
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteStudent(@PathVariable Long id) {
+    @Transactional
+    public void deleteStudent(@PathVariable Long id) {
+        seatAssignmentRepository.deleteAll();
         studentRepository.deleteById(id);
-        return ResponseEntity.ok("Student deleted successfully with id: " + id);
     }
 }

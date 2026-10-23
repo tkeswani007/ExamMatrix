@@ -1,15 +1,12 @@
 package com.exammatrix.controller;
 
 import com.exammatrix.service.AllocationService;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/exam")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ExamController {
     private final AllocationService allocationService;
 
@@ -17,8 +14,14 @@ public class ExamController {
         this.allocationService = allocationService;
     }
 
-    @GetMapping("/allocate")
-    public String runAllocation() {
-        return allocationService.allocateSeats();
+    @PostMapping("/allocate")
+    public Map<String, Object> runAllocation() {
+        return allocationService.allocateSeatsWithValidation();
+    }
+
+    @DeleteMapping("/reset")
+    public Map<String, String> resetMatrix() {
+        allocationService.resetAllocations();
+        return Map.of("message", "Matrix reset successfully");
     }
 }

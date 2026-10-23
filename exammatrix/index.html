@@ -224,7 +224,7 @@
 
         @media (min-width: 768px) {
             .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(4, 1fr);
             }
         }
 
@@ -648,6 +648,17 @@
             font-weight: 900;
             color: #0f172a;
         }
+
+        .search-action-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-action-bar input {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -691,6 +702,13 @@
             </div>
             <div class="stat-card">
                 <div>
+                    <p class="stat-label">Total Capacity</p>
+                    <h3 id="statCapacity" class="stat-value">0</h3>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706;">C</div>
+            </div>
+            <div class="stat-card">
+                <div>
                     <p class="stat-label">Total Students</p>
                     <h3 id="statStudents" class="stat-value">0</h3>
                 </div>
@@ -698,10 +716,10 @@
             </div>
             <div class="stat-card">
                 <div>
-                    <p class="stat-label">Database Status</p>
-                    <h3 class="stat-value" style="font-size: 1.35rem; color: #059669; margin-top: 12px;">Connected (Port 8080)</h3>
+                    <p class="stat-label">Available Seats</p>
+                    <h3 id="statAvailable" class="stat-value">0</h3>
                 </div>
-                <div class="stat-icon" style="background: linear-gradient(135deg, #ecfdf5, #a7f3d0); color: #059669;">OK</div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ecfdf5, #a7f3d0); color: #059669;">A</div>
             </div>
         </div>
 
@@ -778,14 +796,22 @@
         <div class="card results-section">
             <div class="card-header">
                 <h2 class="card-title">Seating Arrangement Matrix</h2>
-                <button onclick="clearAllocations()" class="btn btn-secondary">Reset Matrix</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="window.print()" class="btn btn-secondary">Print Seating Plan</button>
+                    <button onclick="clearAllocations()" class="btn btn-secondary">Reset Matrix</button>
+                </div>
             </div>
-            <div id="resultsContainer" class="card-body">
-                <div class="empty-results">
-                    <div class="empty-icon">M</div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">No Seating Matrix Computed Yet</h3>
-                    <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Add rooms and students above, then click "Run Allocation" to generate optimal seat assignments from the database.</p>
-                    <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
+            <div class="card-body">
+                <div class="search-action-bar">
+                    <input type="text" id="studentSearchInput" placeholder="🔍 Search student name, roll number, or department to find seat..." onkeyup="filterAllocations()">
+                </div>
+                <div id="resultsContainer">
+                    <div class="empty-results">
+                        <div class="empty-icon"><img src="SEAT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">No Seating Matrix Computed Yet</h3>
+                        <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Add rooms and students above, then click "Run Allocation" to generate optimal seat assignments from the database.</p>
+                        <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -814,11 +840,28 @@
             }, 3500);
         }
 
+        function updateDashboardStats(rooms, students) {
+            const totalRooms = rooms.length;
+            const totalCapacity = rooms.reduce((sum, r) => sum + ((r.rows || r.roomRows || 0) * (r.cols || 0)), 0);
+            const totalStudents = students.length;
+            const availableSeats = totalCapacity - totalStudents;
+
+            document.getElementById('statRooms').textContent = totalRooms;
+            document.getElementById('statCapacity').textContent = totalCapacity;
+            document.getElementById('statStudents').textContent = totalStudents;
+            document.getElementById('statAvailable').textContent = availableSeats >= 0 ? availableSeats : 0;
+        }
+
         function loadRooms() {
             fetch(`${BACKEND_URL}/api/rooms`)
                 .then(res => res.json())
-                .then(data => {
-                    renderRooms(data);
+                .then(rooms => {
+                    renderRooms(rooms);
+                    fetch(`${BACKEND_URL}/api/students`)
+                        .then(res => res.json())
+                        .then(students => {
+                            updateDashboardStats(rooms, students);
+                        }).catch(() => updateDashboardStats(rooms, []));
                 })
                 .catch(err => {
                     renderRooms([]);
@@ -828,8 +871,13 @@
         function loadStudents() {
             fetch(`${BACKEND_URL}/api/students`)
                 .then(res => res.json())
-                .then(data => {
-                    renderStudents(data);
+                .then(students => {
+                    renderStudents(students);
+                    fetch(`${BACKEND_URL}/api/rooms`)
+                        .then(res => res.json())
+                        .then(rooms => {
+                            updateDashboardStats(rooms, students);
+                        }).catch(() => updateDashboardStats([], students));
                 })
                 .catch(err => {
                     renderStudents([]);
@@ -839,7 +887,6 @@
         function renderRooms(rooms) {
             const container = document.getElementById('roomList');
             document.getElementById('roomCountBadge').textContent = `${rooms.length} Rooms`;
-            document.getElementById('statRooms').textContent = rooms.length;
 
             if (rooms.length === 0) {
                 container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No rooms found in database.</p>`;
@@ -863,7 +910,6 @@
         function renderStudents(students) {
             const container = document.getElementById('studentList');
             document.getElementById('studentCountBadge').textContent = `${students.length} Students`;
-            document.getElementById('statStudents').textContent = students.length;
 
             if (students.length === 0) {
                 container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No students found in database.</p>`;
@@ -973,7 +1019,7 @@
             allocations = [];
             document.getElementById('resultsContainer').innerHTML = `
                 <div class="empty-results">
-                    <div class="empty-icon">M</div>
+                    <div class="empty-icon"><img src="SEAT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">Seating Matrix Cleared</h3>
                     <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Click the button below to re-compute seat assignments.</p>
                     <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
@@ -985,15 +1031,27 @@
             const container = document.getElementById('resultsContainer');
             container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">Computing optimal seat allocations from database...</p>`;
 
-            fetch(`${BACKEND_URL}/api/exam/allocate`)
+            fetch(`${BACKEND_URL}/api/exam/allocate`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
-                    if (!data || data.length === 0) {
+                    // Handle response map or direct list
+                    let list = data;
+                    if (data && typeof data === 'object' && !Array.isArray(data)) {
+                        if (data.success === false) {
+                            container.innerHTML = `<div class="empty-results"><h3 style="color: #991b1b; font-weight: 800; margin-bottom: 8px;">Capacity Overflow Warning</h3><p style="color: #64748b; font-weight: 600;">${data.message}</p></div>`;
+                            showToast(data.message, "error");
+                            return;
+                        }
+                        list = data.allocations || [];
+                    }
+
+                    if (!list || list.length === 0) {
                         container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">No allocations returned. Ensure rooms and students are added.</p>`;
                         showToast("No allocations found.", "error");
                         return;
                     }
-                    renderAllocations(data);
+                    allocations = list;
+                    renderAllocations(allocations);
                     showToast("Seat allocation successfully computed from database!", "success");
                 })
                 .catch(err => {
@@ -1047,6 +1105,20 @@
             }
             html += '</div>';
             container.innerHTML = html;
+        }
+
+        function filterAllocations() {
+            const query = document.getElementById('studentSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.allocation-item');
+
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(query) || query === "") {
+                    item.style.display = "";
+                } else {
+                    item.style.display = "none";
+                }
+            });
         }
     </script>
 </body>

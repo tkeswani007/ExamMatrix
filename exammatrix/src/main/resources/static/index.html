@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Matrix | Intelligent Seat Allocation System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Exam Matrix | Intelligent Hall Seat Allocation & Management System</title>
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-400: #94a3b8;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --emerald-600: #059669;
+            --emerald-50: #ecfdf5;
+            --rose-600: #e11d48;
+            --rose-50: #fef2f2;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.03);
+            --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,100 +42,206 @@
         }
 
         body {
-            background-color: #f1f5f9;
-            color: #0f172a;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-100);
+            color: var(--slate-900);
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
+            padding-left: 280px;
             padding-bottom: 64px;
+            transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.sidebar-collapsed {
+            padding-left: 88px;
+        }
+
+        aside {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            background-color: var(--slate-900);
+            color: #ffffff;
+            width: 280px;
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--slate-800);
+            overflow: hidden;
+        }
+
+        aside.collapsed {
+            width: 88px;
+        }
+
+        /* Completely hide brand/logo container elements when collapsed, showing only the toggle button */
+        aside.collapsed .sidebar-brand {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        aside.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 0;
+        }
+
+        aside.collapsed .brand-text,
+        aside.collapsed .nav-label,
+        aside.collapsed .sidebar-meta,
+        aside.collapsed .nav-link span,
+        aside.collapsed .logout-btn span {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        aside.collapsed .nav-link,
+        aside.collapsed .logout-btn {
+            justify-content: center;
+            padding: 14px;
+            margin: 0 12px;
+        }
+
+        .sidebar-header {
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--slate-800);
+            white-space: nowrap;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            overflow: hidden;
+            transition: opacity 0.2s ease;
+        }
+
+        .sidebar-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 4px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .sidebar-meta {
+            font-size: 0.7rem;
+            color: var(--slate-500);
+            font-weight: 700;
+            padding: 20px 24px 8px 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+
+        aside nav {
+            flex: 1;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            color: var(--slate-400);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--slate-800);
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            background: rgba(225, 29, 72, 0.1);
+            color: #fb7185;
+            border: 1px solid rgba(225, 29, 72, 0.2);
+            font-weight: 700;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background: var(--rose-600);
+            color: #ffffff;
         }
 
         header {
             background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--slate-200);
             position: sticky;
             top: 0;
             z-index: 40;
-            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            box-shadow: var(--shadow-sm);
             backdrop-filter: blur(8px);
         }
 
         .nav-container {
-            max-width: 1400px;
+            max-width: 1350px;
             margin: 0 auto;
             padding: 0 40px;
-            height: 90px;
+            height: 96px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .brand-group {
+        .header-metrics {
             display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .brand-logo-img {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            object-fit: contain;
-            border: 1px solid #e2e8f0;
-            background: linear-gradient(135deg, #ffffff, #f8fafc);
-            padding: 6px;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
-        }
-
-        .brand-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #0f172a, #4f46e5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .brand-subtitle {
-            font-size: 0.8rem;
-            color: #64748b;
-            font-weight: 600;
-            margin-top: 4px;
-            letter-spacing: 0.01em;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            background-color: #ecfdf5;
-            color: #065f46;
-            font-size: 0.775rem;
+            gap: 24px;
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
             font-weight: 700;
-            border-radius: 9999px;
-            border: 1px solid #a7f3d0;
-            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.05);
+            color: var(--slate-600);
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #10b981;
-            animation: pulse 2s infinite;
+        .header-metric-item {
+            display: flex;
+            flex-direction: column;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        .header-metric-value {
+            color: var(--slate-900);
+            font-size: 0.85rem;
+            font-weight: 800;
         }
 
         .btn {
@@ -114,57 +249,71 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            padding: 12px 26px;
-            border-radius: 14px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
             font-weight: 700;
-            font-size: 0.9rem;
-            cursor: poSyne;
+            font-size: 0.875rem;
+            cursor: pointer;
             border: none;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: #ffffff;
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #4338ca, #3730a3);
+            background: linear-gradient(135deg, var(--primary-hover), #3730a3);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
         }
 
         .btn-dark {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, var(--slate-900), var(--slate-800));
             color: #ffffff;
             width: 100%;
             padding: 14px;
             margin-top: 10px;
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             font-weight: 700;
+            cursor: pointer;
         }
 
         .btn-dark:hover {
-            background: linear-gradient(135deg, #1e293b, #334155);
+            background: linear-gradient(135deg, var(--slate-800), var(--slate-700));
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3);
         }
 
         .btn-secondary {
-            background-color: #f1f5f9;
-            color: #475569;
+            background-color: var(--slate-100);
+            color: var(--slate-700);
             padding: 10px 18px;
             font-size: 0.8rem;
             font-weight: 700;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--slate-300);
+            cursor: pointer;
+            transition: var(--transition);
         }
 
         .btn-secondary:hover {
-            background-color: #e2e8f0;
-            color: #0f172a;
+            background-color: var(--slate-200);
+            color: var(--slate-900);
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-pdf:hover {
+            background: linear-gradient(135deg, #047857, #065f46);
+            transform: translateY(-1px);
         }
 
         #toast {
@@ -174,7 +323,7 @@
             z-index: 50;
             transform: translateY(120px);
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
             max-width: 420px;
         }
 
@@ -185,7 +334,7 @@
 
         .toast-content {
             padding: 18px 24px;
-            border-radius: 16px;
+            border-radius: var(--radius-md);
             box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.15);
             border: 1px solid;
             font-size: 0.9rem;
@@ -196,19 +345,19 @@
         }
 
         .toast-success {
-            background-color: #ecfdf5;
+            background-color: var(--emerald-50);
             border-color: #a7f3d0;
             color: #065f46;
         }
 
         .toast-error {
-            background-color: #fef2f2;
+            background-color: var(--rose-50);
             border-color: #fecaca;
             color: #991b1b;
         }
 
         main {
-            max-width: 1400px;
+            max-width: 1350px;
             margin: 40px auto 0 auto;
             padding: 0 40px;
             display: flex;
@@ -230,16 +379,16 @@
 
         .stat-card {
             background: #ffffff;
-            padding: 32px;
-            border-radius: 24px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.03);
+            padding: 28px 32px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-sm);
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
         }
 
         .stat-card::before {
@@ -249,15 +398,15 @@
             left: 0;
             width: 4px;
             height: 100%;
-            background: #4f46e5;
+            background: var(--primary);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
-            border-color: #cbd5e1;
-            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+            transform: translateY(-3px);
+            border-color: var(--slate-300);
+            box-shadow: var(--shadow-lg);
         }
 
         .stat-card:hover::before {
@@ -265,32 +414,39 @@
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.725rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: #64748b;
+            color: var(--slate-500);
         }
 
         .stat-value {
             font-size: 2.25rem;
             font-weight: 800;
-            color: #0f172a;
-            margin-top: 8px;
+            color: var(--slate-900);
+            margin-top: 6px;
             letter-spacing: -0.03em;
         }
 
         .stat-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            color: #4f46e5;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--slate-50), var(--slate-200));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1.25rem;
-            box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--slate-300);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .stat-icon img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
         }
 
         .dashboard-grid {
@@ -307,9 +463,9 @@
 
         .card {
             background-color: #ffffff;
-            border-radius: 24px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.03);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -317,31 +473,31 @@
         }
 
         .card:hover {
-            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.06);
+            box-shadow: var(--shadow-lg);
         }
 
         .card-header {
             padding: 28px 32px;
-            border-bottom: 1px solid #f1f5f9;
-            background: linear-gradient(to bottom, #ffffff, #fafafa);
+            border-bottom: 1px solid var(--slate-100);
+            background: linear-gradient(to bottom, #ffffff, var(--slate-50));
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .card-title {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--slate-900);
             letter-spacing: -0.02em;
         }
 
         .badge-count {
-            font-size: 0.8rem;
+            font-size: 0.775rem;
             font-weight: 800;
             padding: 6px 14px;
-            background-color: #e0e7ff;
-            color: #4f46e5;
+            background-color: var(--primary-light);
+            color: var(--primary);
             border-radius: 9999px;
             box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
         }
@@ -380,49 +536,49 @@
         }
 
         label {
-            font-size: 0.75rem;
+            font-size: 0.725rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #64748b;
+            color: var(--slate-500);
         }
 
         input {
             width: 100%;
             padding: 14px 18px;
-            background-color: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
+            background-color: var(--slate-50);
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-sm);
             font-size: 0.95rem;
-            color: #0f172a;
+            color: var(--slate-900);
             font-family: inherit;
             font-weight: 600;
-            transition: all 0.25s ease;
+            transition: var(--transition);
         }
 
         input:hover {
-            border-color: #cbd5e1;
+            border-color: var(--slate-300);
         }
 
         input:focus {
             outline: none;
-            border-color: #4f46e5;
+            border-color: var(--primary);
             background-color: #ffffff;
-            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.12);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
         }
 
         .list-section {
-            margin-top: 12px;
+            margin-top: 8px;
             padding-top: 24px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--slate-100);
         }
 
         .list-title {
-            font-size: 0.75rem;
+            font-size: 0.725rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #64748b;
+            color: var(--slate-500);
             margin-bottom: 16px;
         }
 
@@ -440,61 +596,61 @@
         }
 
         .scrollable-list::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: var(--slate-100);
             border-radius: 4px;
         }
 
         .scrollable-list::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: var(--slate-300);
             border-radius: 4px;
         }
 
         .list-item {
             padding: 16px 20px;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            background-color: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 0.9rem;
-            transition: all 0.25s ease;
+            transition: var(--transition);
         }
 
         .list-item:hover {
             background-color: #ffffff;
-            border-color: #cbd5e1;
+            border-color: var(--slate-300);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            box-shadow: var(--shadow-sm);
         }
 
         .item-title {
             font-weight: 800;
-            color: #0f172a;
+            color: var(--slate-900);
             font-size: 0.95rem;
         }
 
         .item-sub {
             font-size: 0.8rem;
-            color: #64748b;
+            color: var(--slate-500);
             margin-top: 4px;
             font-weight: 600;
         }
 
         .btn-delete {
-            background: #fee2e2;
+            background: var(--rose-50);
             border: none;
             color: #991b1b;
-            cursor: poSyne;
+            cursor: pointer;
             padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.775rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
             font-weight: 800;
-            transition: all 0.2s ease;
+            transition: var(--transition);
         }
 
         .btn-delete:hover {
-            background: #dc2626;
+            background: var(--rose-600);
             color: #ffffff;
             transform: scale(1.05);
         }
@@ -506,24 +662,29 @@
         .empty-results {
             text-align: center;
             padding: 100px 32px;
-            background-color: #fafafa;
-            border: 2px dashed #cbd5e1;
-            border-radius: 24px;
+            background-color: var(--slate-50);
+            border: 2px dashed var(--slate-300);
+            border-radius: var(--radius-lg);
         }
 
         .empty-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            color: #4f46e5;
-            border-radius: 24px;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary-light), #c7d2fe);
+            color: var(--primary);
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            font-weight: 800;
             margin: 0 auto 24px auto;
             box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+            border: 1px solid #a5b4fc;
+        }
+
+        .empty-icon img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
         }
 
         .allocation-wrapper {
@@ -533,10 +694,10 @@
         }
 
         .room-group-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 24px;
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius-lg);
             padding: 32px;
-            background-color: #fafafa;
+            background-color: var(--slate-50);
             box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
         }
 
@@ -546,13 +707,13 @@
             justify-content: space-between;
             margin-bottom: 24px;
             padding-bottom: 18px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid var(--slate-200);
         }
 
         .room-name-heading {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--slate-900);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -560,11 +721,11 @@
         }
 
         .room-dot {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background-color: #4f46e5;
-            box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.15);
+            background-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
         }
 
         .allocation-grid {
@@ -588,54 +749,54 @@
         .allocation-item {
             background-color: #ffffff;
             padding: 20px 24px;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--slate-200);
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
         }
 
         .allocation-item:hover {
-            transform: translateY(-4px);
-            border-color: #4f46e5;
+            transform: translateY(-3px);
+            border-color: var(--primary);
             box-shadow: 0 12px 30px -8px rgba(79, 70, 229, 0.15);
         }
 
         .student-name {
             font-weight: 800;
-            font-size: 1rem;
-            color: #0f172a;
+            font-size: 0.95rem;
+            color: var(--slate-900);
         }
 
         .student-dept {
-            font-size: 0.8rem;
-            color: #64748b;
+            font-size: 0.775rem;
+            color: var(--slate-500);
             margin-top: 4px;
             font-weight: 600;
         }
 
         .student-roll {
             font-size: 0.75rem;
-            color: #4f46e5;
+            color: var(--primary);
             font-family: monospace;
             margin-top: 4px;
             font-weight: 800;
         }
 
         .seat-badge {
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            color: #4f46e5;
-            padding: 12px 16px;
-            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary-light), #c7d2fe);
+            color: var(--primary);
+            padding: 10px 14px;
+            border-radius: 10px;
             text-align: right;
             border: 1px solid #a5b4fc;
             box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9);
         }
 
         .seat-label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -643,9 +804,9 @@
         }
 
         .seat-coords {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 900;
-            color: #0f172a;
+            color: var(--slate-900);
         }
 
         .search-action-bar {
@@ -658,28 +819,92 @@
         .search-action-bar input {
             flex: 1;
         }
+
+        @media print {
+            aside, header, .search-action-bar, .btn, #toast, .card-header button {
+                display: none !important;
+            }
+            body {
+                padding-left: 0 !important;
+                background-color: #ffffff !important;
+            }
+            main {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .room-group-card {
+                break-inside: avoid;
+                border: 1px solid var(--slate-300) !important;
+                background: #ffffff !important;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <img src="LG.png" alt="Logo" class="sidebar-logo">
+                <span class="brand-text" style="font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em;">Exam Matrix</span>
+            </div>
+            <button onclick="toggleSidebar()" style="background: transparent; border: none; color: var(--slate-400); cursor: pointer; padding: 6px; border-radius: 8px;">
+                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="sidebar-meta">Core Modules</div>
+
+        <nav>
+            <a href="#" onclick="switchView('dashboard', event)" class="nav-link active" id="nav-dashboard">
+                <span>Dashboard Overview</span>
+            </a>
+            <a href="#" onclick="switchView('rooms', event)" class="nav-link" id="nav-rooms">
+                <span>Exam Rooms Management</span>
+            </a>
+            <a href="#" onclick="switchView('students', event)" class="nav-link" id="nav-students">
+                <span>Students Records Portal</span>
+            </a>
+            <a href="#" onclick="switchView('matrix', event)" class="nav-link" id="nav-matrix">
+                <span>Seating Allocation Matrix</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button onclick="window.location.href='login.html'" class="logout-btn">
+                <span>Terminate Session</span>
+            </button>
+        </div>
+    </aside>
+
     <header>
         <div class="nav-container">
-            <div class="brand-group">
-                <img src="LG.png" alt="Exam Matrix Logo" class="brand-logo-img">
-                <div>
-                    <h1 class="brand-title">Exam Matrix</h1>
-                    <p class="brand-subtitle">Automated Exam Hall Seat Allocation System</p>
-                </div>
+            <div>
+                <h1 style="font-size: 1.35rem; font-weight: 800; color: var(--slate-900); letter-spacing: -0.02em;">Dashboard Overview</h1>
+                <p style="font-size: 0.775rem; color: var(--slate-500); font-weight: 600; margin-top: 2px;">Automated Hall Seat Allocation & Management Portal</p>
             </div>
             
-            <div class="nav-actions">
-                <div class="status-badge">
-                    <span class="status-dot"></span>
-                    <span>System Ready</span>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="header-metrics">
+                    <div class="header-metric-item">
+                        <span>Database Backend</span>
+                        <span class="header-metric-value">MySQL Connection</span>
+                    </div>
+                    <div class="header-metric-item" style="border-left: 1px solid var(--slate-200); padding-left: 20px;">
+                        <span>Runtime Engine</span>
+                        <span class="header-metric-value">Spring Boot 3.2.5</span>
+                    </div>
                 </div>
                 <button onclick="runAllocation()" class="btn btn-primary">
                     Run Allocation
-                </button>
+                </button> 
             </div>
         </div>
     </header>
@@ -697,33 +922,33 @@
                     <p class="stat-label">Total Rooms</p>
                     <h3 id="statRooms" class="stat-value">0</h3>
                 </div>
-                <div class="stat-icon"><img src="room.png" alt="Seat" style="background: linear-gradient(135deg, #e0e7ff, #839cff);width: 64px; height: 64px; border-radius: 20px;  object-fit: contain;"></div>
+                <div class="stat-icon"><img src="room.png" alt="Rooms"></div>
             </div>
             <div class="stat-card">
                 <div>
                     <p class="stat-label">Total Capacity</p>
                     <h3 id="statCapacity" class="stat-value">0</h3>
                 </div>
-                <div class="stat-icon"><img src="chair-solid-full.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
+                <div class="stat-icon"><img src="chair-solid-full.png" alt="Capacity"></div>
             </div>
             <div class="stat-card">
                 <div>
                     <p class="stat-label">Total Students</p>
                     <h3 id="statStudents" class="stat-value">0</h3>
                 </div>
-                <div class="stat-icon"><img src="STUDENT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
+                <div class="stat-icon"><img src="STUDENT.png" alt="Students"></div>
             </div>
             <div class="stat-card">
                 <div>
                     <p class="stat-label">Available Seats</p>
                     <h3 id="statAvailable" class="stat-value">0</h3>
                 </div>
-                <div class="stat-icon"><img src="SEAT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
+                <div class="stat-icon"><img src="SEAT.png" alt="Seats"></div>
             </div>
         </div>
 
         <div class="dashboard-grid">
-            <div class="card">
+            <div id="rooms" class="card">
                 <div class="card-header">
                     <h2 class="card-title">Exam Rooms Management</h2>
                     <span id="roomCountBadge" class="badge-count">0 Rooms</span>
@@ -760,7 +985,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div id="students" class="card">
                 <div class="card-header">
                     <h2 class="card-title">Students Management</h2>
                     <span id="studentCountBadge" class="badge-count">0 Students</span>
@@ -792,23 +1017,23 @@
             </div>
         </div>
 
-        <div class="card results-section">
+        <div id="matrix" class="card results-section">
             <div class="card-header">
                 <h2 class="card-title">Seating Arrangement Matrix</h2>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="window.print()" class="btn btn-secondary">Print Seating Plan</button>
+                    <button onclick="convertToPDF()" class="btn btn-pdf">Convert to PDF</button>
                     <button onclick="clearAllocations()" class="btn btn-secondary">Reset Matrix</button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="search-action-bar">
-                    <input type="text" id="studentSearchInput" placeholder="🔍 Search student name, roll number, or department to find seat..." onkeyup="filterAllocations()">
+                    <input type="text" id="studentSearchInput" placeholder="Search student name, roll number, or department to find seat..." onkeyup="filterAllocations()">
                 </div>
                 <div id="resultsContainer">
                     <div class="empty-results">
-                        <div class="empty-icon"><img src="SEAT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
-                        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">No Seating Matrix Computed Yet</h3>
-                        <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Add rooms and students above, then click "Run Allocation" to generate optimal seat assignments from the database.</p>
+                        <div class="empty-icon"><img src="SEAT.png" alt="Seat"></div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; color: var(--slate-900);">No Seating Matrix Computed Yet</h3>
+                        <p style="font-size: 0.9rem; color: var(--slate-500); max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Add rooms and students above, then click Run Allocation to generate optimal seat assignments from the database.</p>
                         <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
                     </div>
                 </div>
@@ -819,11 +1044,41 @@
     <script>
         const BACKEND_URL = 'http://localhost:8080';
         let allocations = [];
+        let isCollapsed = false;
 
         window.onload = function() {
             loadRooms();
             loadStudents();
         };
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const body = document.body;
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+                body.classList.add('sidebar-collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                body.classList.remove('sidebar-collapsed');
+            }
+        }
+
+        function switchView(viewId, event) {
+            event.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeLink = document.getElementById(`nav-${viewId}`);
+            if (activeLink) activeLink.classList.add('active');
+
+            if (viewId === 'dashboard') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                const targetElement = document.getElementById(viewId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
@@ -837,6 +1092,17 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3500);
+        }
+
+        function convertToPDF() {
+            if (allocations.length === 0) {
+                showToast("No seating matrix available to export as PDF.", "error");
+                return;
+            }
+            showToast("Generating formal PDF report document...", "success");
+            setTimeout(() => {
+                window.print();
+            }, 600);
         }
 
         function updateDashboardStats(rooms, students) {
@@ -888,7 +1154,7 @@
             document.getElementById('roomCountBadge').textContent = `${rooms.length} Rooms`;
 
             if (rooms.length === 0) {
-                container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No rooms found in database.</p>`;
+                container.innerHTML = `<p style="font-size: 0.8rem; color: var(--slate-500); text-align: center; padding: 20px; font-weight: 600;">No rooms found in database.</p>`;
                 return;
             }
 
@@ -911,7 +1177,7 @@
             document.getElementById('studentCountBadge').textContent = `${students.length} Students`;
 
             if (students.length === 0) {
-                container.innerHTML = `<p style="font-size: 0.8rem; color: #64748b; text-align: center; padding: 20px; font-weight: 600;">No students found in database.</p>`;
+                container.innerHTML = `<p style="font-size: 0.8rem; color: var(--slate-500); text-align: center; padding: 20px; font-weight: 600;">No students found in database.</p>`;
                 return;
             }
 
@@ -1018,9 +1284,9 @@
             allocations = [];
             document.getElementById('resultsContainer').innerHTML = `
                 <div class="empty-results">
-                    <div class="empty-icon"><img src="SEAT.png" alt="Seat" style="width: 40px; height: 40px; object-fit: contain;"></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: #0f172a;">Seating Matrix Cleared</h3>
-                    <p style="font-size: 0.95rem; color: #64748b; max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Click the button below to re-compute seat assignments.</p>
+                    <div class="empty-icon"><img src="SEAT.png" alt="Seat"></div>
+                    <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; color: var(--slate-900);">Seating Matrix Cleared</h3>
+                    <p style="font-size: 0.9rem; color: var(--slate-500); max-width: 400px; margin: 0 auto 24px auto; font-weight: 600;">Click the button below to re-compute seat assignments.</p>
                     <button onclick="runAllocation()" class="btn btn-primary" style="margin: 0 auto;">Run Allocation Now</button>
                 </div>`;
             showToast("Seating matrix reset.", "error");
@@ -1028,16 +1294,15 @@
 
         function runAllocation() {
             const container = document.getElementById('resultsContainer');
-            container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">Computing optimal seat allocations from database...</p>`;
+            container.innerHTML = `<p style="text-align: center; color: var(--slate-500); padding: 60px; font-weight: 700; font-size: 1rem;">Computing optimal seat allocations from database...</p>`;
 
             fetch(`${BACKEND_URL}/api/exam/allocate`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
-                    // Handle response map or direct list
                     let list = data;
                     if (data && typeof data === 'object' && !Array.isArray(data)) {
                         if (data.success === false) {
-                            container.innerHTML = `<div class="empty-results"><h3 style="color: #991b1b; font-weight: 800; margin-bottom: 8px;">Capacity Overflow Warning</h3><p style="color: #64748b; font-weight: 600;">${data.message}</p></div>`;
+                            container.innerHTML = `<div class="empty-results"><h3 style="color: #991b1b; font-weight: 800; margin-bottom: 8px;">Capacity Overflow Warning</h3><p style="color: var(--slate-500); font-weight: 600;">${data.message}</p></div>`;
                             showToast(data.message, "error");
                             return;
                         }
@@ -1045,7 +1310,7 @@
                     }
 
                     if (!list || list.length === 0) {
-                        container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">No allocations returned. Ensure rooms and students are added.</p>`;
+                        container.innerHTML = `<p style="text-align: center; color: var(--slate-500); padding: 60px; font-weight: 700; font-size: 1rem;">No allocations returned. Ensure rooms and students are added.</p>`;
                         showToast("No allocations found.", "error");
                         return;
                     }
@@ -1054,7 +1319,7 @@
                     showToast("Seat allocation successfully computed from database!", "success");
                 })
                 .catch(err => {
-                    container.innerHTML = `<p style="text-align: center; color: #64748b; padding: 60px; font-weight: 700; font-size: 1rem;">Error connecting to backend server on port 8080.</p>`;
+                    container.innerHTML = `<p style="text-align: center; color: var(--slate-500); padding: 60px; font-weight: 700; font-size: 1rem;">Error connecting to backend server on port 8080.</p>`;
                     showToast("Failed to communicate with backend.", "error");
                 });
         }

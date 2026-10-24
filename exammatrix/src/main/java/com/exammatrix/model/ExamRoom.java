@@ -1,67 +1,31 @@
 package com.exammatrix.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "exam_rooms")
-public class ExamRoom {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ExamRoom extends BaseEntity {
 
-    private String roomName;
-    private int capacity;
+    @Column(nullable = false)
+    private String roomNumber;
 
-    @Column(name = "room_rows")
-    private int rows;
+    @Column(nullable = false)
+    private int roomRows;
 
+    @Column(nullable = false)
     private int cols;
 
-    public Long getId() {
-        return id;
-    }
+    public String getRoomNumber() { return roomNumber; }
+    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public int getRoomRows() { return roomRows; }
+    public void setRoomRows(int roomRows) { this.roomRows = roomRows; }
 
-    public String getRoomName() {
-        return roomName;
-    }
+    public int getCols() { return cols; }
+    public void setCols(int cols) { this.cols = cols; }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
-    public int getRows() {
-        return rows;
-    }
-
-    public void setRows(int rows) {
-        this.rows = rows;
-    }
-
-    public int getRoomRows() {
-        return rows;
-    }
-
-    public void setRoomRows(int roomRows) {
-        this.rows = roomRows;
-    }
-
-    public int getCols() {
-        return cols;
-    }
-
-    public void setCols(int cols) {
-        this.cols = cols;
-    }
+    public int getRows() { return roomRows; }
+    public void setRows(int rows) { this.roomRows = rows; }
 }

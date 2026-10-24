@@ -2,10 +2,7 @@ package com.exammatrix.controller;
 
 import com.exammatrix.model.Student;
 import com.exammatrix.repository.StudentRepository;
-import com.exammatrix.repository.SeatAssignmentRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -13,11 +10,9 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class StudentController {
     private final StudentRepository studentRepository;
-    private final SeatAssignmentRepository seatAssignmentRepository;
 
-    public StudentController(StudentRepository studentRepository, SeatAssignmentRepository seatAssignmentRepository) {
+    public StudentController(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
-        this.seatAssignmentRepository = seatAssignmentRepository;
     }
 
     @PostMapping
@@ -30,10 +25,17 @@ public class StudentController {
         return studentRepository.findAll();
     }
 
+    @PutMapping("/{id}")
+    public Student updateStudent(@PathVariable Long id, @RequestBody Student studentDetails) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
+        student.setName(studentDetails.getName());
+        student.setRollNumber(studentDetails.getRollNumber());
+        student.setDepartment(studentDetails.getDepartment());
+        return studentRepository.save(student);
+    }
+
     @DeleteMapping("/{id}")
-    @Transactional
     public void deleteStudent(@PathVariable Long id) {
-        seatAssignmentRepository.deleteAll();
         studentRepository.deleteById(id);
     }
 }

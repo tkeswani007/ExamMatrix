@@ -20,7 +20,6 @@ public class AuthController {
 
     @PostMapping({"/register", "/signup"})
     public Map<String, Object> register(@RequestBody User user) {
-        // Map email to username if username is null
         if (user.getUsername() == null && user.getName() != null) {
             user.setUsername(user.getName());
         }
@@ -31,7 +30,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody User loginRequest) {
-        // Handle both email/username fields from frontend
         String queryUsername = loginRequest.getUsername() != null ? loginRequest.getUsername() : "";
         User user = userRepository.findByUsername(queryUsername);
         

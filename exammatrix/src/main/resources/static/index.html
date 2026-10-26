@@ -311,6 +311,17 @@
             color: var(--slate-900);
         }
 
+        .btn-pdf {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-pdf:hover {
+            background: linear-gradient(135deg, #047857, #065f46);
+            transform: translateY(-1px);
+        }
+
         #toast {
             position: fixed;
             bottom: 36px;
@@ -814,6 +825,30 @@
         .search-action-bar input {
             flex: 1;
         }
+
+        @media print {
+            aside, header, .search-action-bar, .btn, #toast, .card-header button {
+                display: none !important;
+            }
+            body {
+                padding-left: 0 !important;
+                background-color: #ffffff !important;
+            }
+            main {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .room-group-card {
+                break-inside: avoid;
+                border: 1px solid var(--slate-300) !important;
+                background: #ffffff !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -992,6 +1027,7 @@
             <div class="card-header">
                 <h2 class="card-title">Seating Arrangement Matrix</h2>
                 <div style="display: flex; gap: 10px;">
+                    <button onclick="convertToPDF()" class="btn btn-pdf">Convert to PDF</button>
                     <button onclick="clearAllocations()" class="btn btn-secondary">Reset Matrix</button>
                 </div>
             </div>
@@ -1062,6 +1098,17 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3500);
+        }
+
+        function convertToPDF() {
+            if (allocations.length === 0) {
+                showToast("No seating matrix available to export as PDF.", "error");
+                return;
+            }
+            showToast("Generating formal PDF report document...", "success");
+            setTimeout(() => {
+                window.print();
+            }, 600);
         }
 
         function updateDashboardStats(rooms, students) {

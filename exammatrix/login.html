@@ -20,6 +20,8 @@
             --slate-50: #f8fafc;
             --rose-600: #e11d48;
             --rose-50: #fef2f2;
+            --emerald-600: #059669;
+            --emerald-50: #ecfdf5;
             --radius-xl: 32px;
             --radius-lg: 20px;
             --radius-sm: 12px;
@@ -46,10 +48,6 @@
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
-        }
-
-        h1, h2, h3, h4, .brand-text {
-            font-family: 'Inter', sans-serif;
         }
 
         .auth-wrapper {
@@ -202,12 +200,32 @@
             gap: 8px;
         }
 
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         label {
             font-size: 0.725rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--slate-700);
+        }
+
+        .forgot-link {
+            font-size: 0.775rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .forgot-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
         }
 
         .input-wrapper {
@@ -258,10 +276,6 @@
             box-shadow: 0 12px 28px rgba(99, 102, 241, 0.45);
         }
 
-        .btn-submit:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
         .btn-submit:disabled {
             opacity: 0.7;
             cursor: not-allowed;
@@ -279,8 +293,69 @@
             animation: shake 0.4s ease-in-out;
         }
 
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--slate-200);
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--slate-500);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .modal-status {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .modal-status.success {
+            background-color: var(--emerald-50);
+            border: 1px solid #a7f3d0;
+            color: var(--emerald-600);
+        }
+
+        .modal-status.error {
+            background-color: var(--rose-50);
+            border: 1px solid #fecaca;
+            color: var(--rose-600);
+        }
+
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         @keyframes fadeIn {
@@ -307,7 +382,7 @@
         <div class="auth-brand-side">
             <div class="brand-badge">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="6" fill="#818cf8"/></svg>
-                Secure Admin Portal
+                Authentication Portal
             </div>
             <div class="brand-content">
                 <h2>Intelligent Hall <span>Seat Allocation</span></h2>
@@ -321,11 +396,11 @@
         <div class="auth-form-side">
             <div class="auth-header">
                 <h1 class="auth-title">Welcome Back</h1>
-                <p class="auth-subtitle">Please sign in to access your administration dashboard</p>
+                <p class="auth-subtitle">Please sign in to access your dashboard</p>
             </div>
 
             <div class="tab-group">
-                <button id="loginTab" onclick="switchTab('login')" class="tab-btn active">Admin Login</button>
+                <button id="loginTab" onclick="switchTab('login')" class="tab-btn active">Sign In</button>
                 <button id="signupTab" onclick="switchTab('signup')" class="tab-btn">Create Account</button>
             </div>
 
@@ -333,17 +408,20 @@
                 <div id="nameField" class="form-group hidden">
                     <label>Full Name</label>
                     <div class="input-wrapper">
-                        <input type="text" id="name" placeholder="e.g. Administrator">
+                        <input type="text" id="name" placeholder="e.g. John Doe">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <div class="input-wrapper">
-                        <input type="email" id="email" placeholder="admin@exammatrix.edu" required>
+                        <input type="email" id="email" placeholder="user@exammatrix.edu" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
+                    <div class="label-row">
+                        <label>Password</label>
+                        <a href="#" class="forgot-link" id="forgotPasswordLink" onclick="openForgotModal(event)">Forgot?</a>
+                    </div>
                     <div class="input-wrapper">
                         <input type="password" id="password" placeholder="Enter secure password" required minlength="6">
                     </div>
@@ -354,9 +432,50 @@
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closeForgotModal()">&times;</button>
+            <h3 class="auth-title" style="font-size: 1.35rem; margin-bottom: 6px;">Reset Password</h3>
+            <p class="auth-subtitle" style="margin-bottom: 20px;">Choose a recovery method to regain account access</p>
+
+            <div class="tab-group" style="margin-bottom: 20px;">
+                <button id="emailResetTab" onclick="switchResetMethod('email')" class="tab-btn active">Reset Link</button>
+                <button id="otpResetTab" onclick="switchResetMethod('otp')" class="tab-btn">Use OTP</button>
+            </div>
+
+            <!-- Email Method -->
+            <form id="resetEmailForm" onsubmit="handlePasswordReset(event, 'email')">
+                <div class="form-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="resetEmail" placeholder="your.email@exammatrix.edu" required>
+                </div>
+                <button type="submit" id="resetEmailBtn" class="btn-submit">Send Reset Link</button>
+            </form>
+
+            <!-- OTP Method -->
+            <form id="resetOtpForm" onsubmit="handlePasswordReset(event, 'otp')" class="hidden">
+                <div class="form-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="resetOtpEmail" placeholder="your.email@exammatrix.edu" required>
+                </div>
+                <div id="otpInputGroup" class="form-group hidden">
+                    <label>One-Time Password (OTP)</label>
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit OTP">
+                    <label style="margin-top: 8px;">New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password" minlength="6">
+                </div>
+                <button type="submit" id="resetOtpBtn" class="btn-submit">Request OTP</button>
+            </form>
+
+            <div id="modalStatus" class="modal-status hidden"></div>
+        </div>
+    </div>
+
     <script>
         const API_BASE_URL = 'http://localhost:8080/api/auth';
         let isLoginMode = true;
+        let otpSent = false;
 
         function switchTab(mode) {
             isLoginMode = (mode === 'login');
@@ -367,6 +486,7 @@
             const errorMsg = document.getElementById('errorMsg');
             const authTitle = document.querySelector('.auth-title');
             const authSubtitle = document.querySelector('.auth-subtitle');
+            const forgotLink = document.getElementById('forgotPasswordLink');
 
             errorMsg.classList.add('hidden');
 
@@ -376,16 +496,18 @@
                 nameField.classList.add('hidden');
                 document.getElementById('name').removeAttribute('required');
                 authTitle.textContent = "Welcome Back";
-                authSubtitle.textContent = "Please sign in to access your administration dashboard";
+                authSubtitle.textContent = "Please sign in to access your dashboard";
                 submitBtn.textContent = "Authenticate Portal";
+                forgotLink.classList.remove('hidden');
             } else {
                 signupTab.classList.add('active');
                 loginTab.classList.remove('active');
                 nameField.classList.remove('hidden');
                 document.getElementById('name').setAttribute('required', 'true');
                 authTitle.textContent = "Create Account";
-                authSubtitle.textContent = "Register a new administrator profile to get started";
-                submitBtn.textContent = "Register Admin Account";
+                authSubtitle.textContent = "Register a new profile to get started";
+                submitBtn.textContent = "Register Account";
+                forgotLink.classList.add('hidden');
             }
         }
 
@@ -414,13 +536,13 @@
                 const data = await response.json().catch(() => ({}));
 
                 if (!response.ok || data.success === false) {
-                    throw new Error(data.message || (isLoginMode ? "Invalid username or password." : "Registration failed."));
+                    throw new Error(data.message || (isLoginMode ? "Invalid credentials." : "Registration failed."));
                 }
 
                 if (isLoginMode) {
                     window.location.href = "index.html";
                 } else {
-                    alert("Account registered successfully! Please log in with your credentials.");
+                    alert("Account registered successfully! Please sign in.");
                     switchTab('login');
                     document.getElementById('authForm').reset();
                 }
@@ -430,8 +552,126 @@
                 errorMsg.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = isLoginMode ? "Authenticate Portal" : "Register Admin Account";
+                submitBtn.textContent = isLoginMode ? "Authenticate Portal" : "Register Account";
             }
+        }
+
+        /* Modal Handlers */
+        function openForgotModal(e) {
+            e.preventDefault();
+            document.getElementById('forgotModal').classList.remove('hidden');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.add('hidden');
+            document.getElementById('modalStatus').classList.add('hidden');
+            otpSent = false;
+            document.getElementById('otpInputGroup').classList.add('hidden');
+            document.getElementById('resetOtpBtn').textContent = "Request OTP";
+            document.getElementById('resetEmailForm').reset();
+            document.getElementById('resetOtpForm').reset();
+        }
+
+        function switchResetMethod(method) {
+            const emailTab = document.getElementById('emailResetTab');
+            const otpTab = document.getElementById('otpResetTab');
+            const emailForm = document.getElementById('resetEmailForm');
+            const otpForm = document.getElementById('resetOtpForm');
+            document.getElementById('modalStatus').classList.add('hidden');
+
+            if (method === 'email') {
+                emailTab.classList.add('active');
+                otpTab.classList.remove('active');
+                emailForm.classList.remove('hidden');
+                otpForm.classList.add('hidden');
+            } else {
+                otpTab.classList.add('active');
+                emailTab.classList.remove('active');
+                otpForm.classList.remove('hidden');
+                emailForm.classList.add('hidden');
+            }
+        }
+
+        async function handlePasswordReset(event, type) {
+            event.preventDefault();
+            const statusBox = document.getElementById('modalStatus');
+            statusBox.classList.add('hidden');
+
+            if (type === 'email') {
+                const email = document.getElementById('resetEmail').value.trim();
+                const btn = document.getElementById('resetEmailBtn');
+                btn.disabled = true;
+                btn.textContent = "Sending...";
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/forgot-password`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    showModalStatus(true, "Reset link dispatched! Check your email inbox.");
+                } catch (err) {
+                    showModalStatus(false, "Failed to send reset link. Try again later.");
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = "Send Reset Link";
+                }
+            } else {
+                const email = document.getElementById('resetOtpEmail').value.trim();
+                const btn = document.getElementById('resetOtpBtn');
+
+                if (!otpSent) {
+                    btn.disabled = true;
+                    btn.textContent = "Sending OTP...";
+
+                    try {
+                        await fetch(`${API_BASE_URL}/request-otp`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email })
+                        });
+                        
+                        otpSent = true;
+                        document.getElementById('otpInputGroup').classList.remove('hidden');
+                        btn.textContent = "Verify OTP & Update Password";
+                        showModalStatus(true, "OTP code sent to your email!");
+                    } catch (err) {
+                        showModalStatus(false, "Could not send OTP. Check your email.");
+                    } finally {
+                        btn.disabled = false;
+                    }
+                } else {
+                    const otp = document.getElementById('otpCode').value.trim();
+                    const newPassword = document.getElementById('newPassword').value.trim();
+                    btn.disabled = true;
+                    btn.textContent = "Updating...";
+
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/verify-otp-reset`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, otp, newPassword })
+                        });
+
+                        if (!res.ok) throw new Error();
+
+                        showModalStatus(true, "Password updated successfully! You can now log in.");
+                        setTimeout(closeForgotModal, 2000);
+                    } catch (err) {
+                        showModalStatus(false, "Invalid OTP or request failed.");
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = "Verify OTP & Update Password";
+                    }
+                }
+            }
+        }
+
+        function showModalStatus(isSuccess, message) {
+            const box = document.getElementById('modalStatus');
+            box.textContent = message;
+            box.className = `modal-status ${isSuccess ? 'success' : 'error'}`;
         }
     </script>
 </body>

@@ -253,7 +253,7 @@
 
         async function handleAuth(event) {
             event.preventDefault();
-            const email = document.getElementById('email').value.trim();
+            const emailInput = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
             const name = document.getElementById('name').value.trim();
             const submitBtn = document.getElementById('submitBtn');
@@ -263,8 +263,8 @@
             submitBtn.disabled = true;
             submitBtn.textContent = isLoginMode ? "Authenticating..." : "Registering Account...";
 
-            const endpoint = isLoginMode ? `${API_BASE_URL}/login` : `${API_BASE_URL}/signup`;
-            const payload = isLoginMode ? { email, password } : { name, email, password };
+            const endpoint = isLoginMode ? `${API_BASE_URL}/login` : `${API_BASE_URL}/register`;
+            const payload = isLoginMode ? { username: emailInput, password } : { username: emailInput, name, password };
 
             try {
                 const response = await fetch(endpoint, {
@@ -273,13 +273,14 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.message || (isLoginMode ? "Invalid email or password." : "Registration failed."));
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || (isLoginMode ? "Invalid username or password." : "Registration failed."));
                 }
 
                 if (isLoginMode) {
-                    window.location.href = "/index.html";
+                    window.location.href = "index.html";
                 } else {
                     alert("Account registered successfully! Please log in with your credentials.");
                     switchTab('login');

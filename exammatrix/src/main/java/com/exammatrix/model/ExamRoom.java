@@ -9,7 +9,10 @@ import jakarta.persistence.Table;
 public class ExamRoom extends BaseEntity {
 
     @Column(nullable = false)
-    private String roomNumber;
+    private String roomName; 
+
+    @Column(nullable = false)
+    private int capacity;
 
     @Column(nullable = false)
     private int roomRows;
@@ -17,8 +20,11 @@ public class ExamRoom extends BaseEntity {
     @Column(nullable = false)
     private int cols;
 
-    public String getRoomNumber() { return roomNumber; }
-    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
+    public String getRoomName() { return roomName; }
+    public void setRoomName(String roomName) { this.roomName = roomName; }
+
+    public int getCapacity() { return capacity; }
+    public void setCapacity(int capacity) { this.capacity = capacity; }
 
     public int getRoomRows() { return roomRows; }
     public void setRoomRows(int roomRows) { this.roomRows = roomRows; }

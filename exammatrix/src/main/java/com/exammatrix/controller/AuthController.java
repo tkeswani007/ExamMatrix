@@ -18,16 +18,23 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/register")
-    public Map<String, String> register(@RequestBody User user) {
+    @PostMapping({"/register", "/signup"})
+    public Map<String, Object> register(@RequestBody User user) {
+        // Map email to username if username is null
+        if (user.getUsername() == null && user.getName() != null) {
+            user.setUsername(user.getName());
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return Map.of("message", "User registered successfully with hashed password!");
+        return Map.of("success", true, "message", "User registered successfully!");
     }
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody User loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername());
+        // Handle both email/username fields from frontend
+        String queryUsername = loginRequest.getUsername() != null ? loginRequest.getUsername() : "";
+        User user = userRepository.findByUsername(queryUsername);
+        
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             return Map.of("success", true, "message", "Login successful!");
         }

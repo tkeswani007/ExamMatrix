@@ -444,7 +444,6 @@
                 <button id="otpResetTab" onclick="switchResetMethod('otp')" class="tab-btn">Use OTP</button>
             </div>
 
-            <!-- Email Method -->
             <form id="resetEmailForm" onsubmit="handlePasswordReset(event, 'email')">
                 <div class="form-group">
                     <label>Registered Email</label>
@@ -473,7 +472,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8080/api/auth';
+        const API_BASE_URL = 'https://exam-matrix.onrender.com/api/auth';
         let isLoginMode = true;
         let otpSent = false;
 
@@ -556,7 +555,6 @@
             }
         }
 
-        /* Modal Handlers */
         function openForgotModal(e) {
             e.preventDefault();
             document.getElementById('forgotModal').classList.remove('hidden');
